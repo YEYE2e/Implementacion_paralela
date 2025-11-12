@@ -5,194 +5,93 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.Stack;
 
 public class ParallelQuickSort {
+    private static final int UMBRAL = 10000;
 
-    private static final int THRESHOLD = 10000;
-
-    
-
-    public static void sort(int[] array) {
-
+    public static void sort(int[] arr) {
         ForkJoinPool pool = ForkJoinPool.commonPool();
-
-        pool.invoke(new QuickSortTask(array, 0, array.length - 1));
-
+        pool.invoke(new TareaQuickSort(arr, 0, arr.length - 1));
     }
 
-    
+    private static class TareaQuickSort extends RecursiveAction {
+        private int[] arr;
+        private int izq, der;
 
-    private static class QuickSortTask extends RecursiveAction {
-
-        private int[] array;
-
-        private int low, high;
-
-        
-
-        QuickSortTask(int[] array, int low, int high) {
-
-            this.array = array;
-
-            this.low = low;
-
-            this.high = high;
-
+        TareaQuickSort(int[] arr, int izq, int der) {
+            this.arr = arr;
+            this.izq = izq;
+            this.der = der;
         }
-
-        
 
         @Override
-
         protected void compute() {
-
-            if (high - low < THRESHOLD) {
-
-                sequentialQuickSort(array, low, high);
-
+            if (der - izq < UMBRAL) {
+                ordenarSecuencial(arr, izq, der);
                 return;
-
             }
 
-            
-
-            if (low < high) {
-
-                int pi = partition(array, low, high);
-
-                QuickSortTask leftTask = new QuickSortTask(array, low, pi - 1);
-
-                QuickSortTask rightTask = new QuickSortTask(array, pi + 1, high);
-
-                
-
-                invokeAll(leftTask, rightTask);
-
+            if (izq < der) {
+                int pivote = particionar(arr, izq, der);
+                TareaQuickSort tareaIzq = new TareaQuickSort(arr, izq, pivote - 1);
+                TareaQuickSort tareaDer = new TareaQuickSort(arr, pivote + 1, der);
+                invokeAll(tareaIzq, tareaDer);
             }
-
         }
 
-        
+        private void ordenarSecuencial(int[] arr, int izq, int der) {
+            Stack<int[]> pila = new Stack<>();
+            pila.push(new int[]{izq, der});
 
-        private void sequentialQuickSort(int[] array, int low, int high) {
+            while (!pila.isEmpty()) {
+                int[] limites = pila.pop();
+                int i = limites[0];
+                int d = limites[1];
 
-            // Usar stack en lugar de recursión para evitar StackOverflowError
+                if (i < d) {
+                    int pivote = particionar(arr, i, d);
 
-            Stack<int[]> stack = new Stack<>();
-
-            stack.push(new int[]{low, high});
-
-            
-
-            while (!stack.isEmpty()) {
-
-                int[] bounds = stack.pop();
-
-                int l = bounds[0];
-
-                int h = bounds[1];
-
-                
-
-                if (l < h) {
-
-                    int pi = partition(array, l, h);
-
-                    
-
-                    // Optimización: procesar la parte más pequeña primero
-
-                    if (pi - l < h - pi) {
-
-                        stack.push(new int[]{pi + 1, h});
-
-                        stack.push(new int[]{l, pi - 1});
-
+                    if (pivote - i < d - pivote) {
+                        pila.push(new int[]{pivote + 1, d});
+                        pila.push(new int[]{i, pivote - 1});
                     } else {
-
-                        stack.push(new int[]{l, pi - 1});
-
-                        stack.push(new int[]{pi + 1, h});
-
+                        pila.push(new int[]{i, pivote - 1});
+                        pila.push(new int[]{pivote + 1, d});
                     }
-
                 }
-
             }
-
         }
 
-        
-
-        private int partition(int[] array, int low, int high) {
-
-            // Mediana de tres para mejor pivote
-
-            int mid = low + (high - low) / 2;
-
-            if (array[mid] < array[low]) {
-
-                swap(array, low, mid);
-
+        private int particionar(int[] arr, int izq, int der) {
+            int medio = izq + (der - izq) / 2;
+            if (arr[medio] < arr[izq]) {
+                intercambiar(arr, izq, medio);
+            }
+            if (arr[der] < arr[izq]) {
+                intercambiar(arr, izq, der);
+            }
+            if (arr[der] < arr[medio]) {
+                intercambiar(arr, medio, der);
             }
 
-            if (array[high] < array[low]) {
+            int pivote = arr[medio];
+            intercambiar(arr, medio, der);
 
-                swap(array, low, high);
+            int i = izq - 1;
 
-            }
-
-            if (array[high] < array[mid]) {
-
-                swap(array, mid, high);
-
-            }
-
-            
-
-            // Usar el medio como pivote
-
-            int pivot = array[mid];
-
-            swap(array, mid, high);
-
-            
-
-            int i = low - 1;
-
-            
-
-            for (int j = low; j < high; j++) {
-
-                if (array[j] <= pivot) {
-
+            for (int j = izq; j < der; j++) {
+                if (arr[j] <= pivote) {
                     i++;
-
-                    swap(array, i, j);
-
+                    intercambiar(arr, i, j);
                 }
-
             }
 
-            
-
-            swap(array, i + 1, high);
-
+            intercambiar(arr, i + 1, der);
             return i + 1;
-
         }
 
-        
-
-        private void swap(int[] array, int i, int j) {
-
-            int temp = array[i];
-
-            array[i] = array[j];
-
-            array[j] = temp;
-
+        private void intercambiar(int[] arr, int i, int j) {
+            int temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
         }
-
     }
-
 }
-

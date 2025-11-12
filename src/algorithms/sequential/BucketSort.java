@@ -5,34 +5,32 @@ import java.util.Arrays;
 import java.util.List;
 
 public class BucketSort {
-    public static void sort(int[] array) {
-        if (array.length < 2) return;
+    public static void sort(int[] arr) {
+        if (arr.length < 2) return;
 
-        int max = Arrays.stream(array).max().orElse(0);
-        int min = Arrays.stream(array).min().orElse(0);
-        int range = max - min + 1;
-        int numBuckets = (int) Math.sqrt(array.length);
+        int max = Arrays.stream(arr).max().orElse(0);
+        int min = Arrays.stream(arr).min().orElse(0);
+        int rango = max - min + 1;
+        int numCubetas = (int) Math.sqrt(arr.length);
 
         @SuppressWarnings("unchecked")
-        List<Integer>[] buckets = new ArrayList[numBuckets];
-        for (int i = 0; i < numBuckets; i++) {
-            buckets[i] = new ArrayList<>();
+        List<Integer>[] cubetas = new ArrayList[numCubetas];
+        for (int i = 0; i < numCubetas; i++) {
+            cubetas[i] = new ArrayList<>();
         }
 
-        // Distribuir elementos en buckets
-        for (int value : array) {
-            int bucketIndex = (int) ((long) (value - min) * numBuckets / range);
-            if (bucketIndex >= numBuckets) bucketIndex = numBuckets - 1;
-            buckets[bucketIndex].add(value);
+        for (int valor : arr) {
+            int idx = (int) ((long) (valor - min) * numCubetas / rango);
+            if (idx >= numCubetas) idx = numCubetas - 1;
+            cubetas[idx].add(valor);
         }
 
-        // Ordenar cada bucket y combinar
-        int index = 0;
-        for (List<Integer> bucket : buckets) {
-            int[] bucketArray = bucket.stream().mapToInt(i -> i).toArray();
-            Arrays.sort(bucketArray);
-            for (int value : bucketArray) {
-                array[index++] = value;
+        int idx = 0;
+        for (List<Integer> cubeta : cubetas) {
+            int[] arrCubeta = cubeta.stream().mapToInt(i -> i).toArray();
+            Arrays.sort(arrCubeta);
+            for (int valor : arrCubeta) {
+                arr[idx++] = valor;
             }
         }
     }

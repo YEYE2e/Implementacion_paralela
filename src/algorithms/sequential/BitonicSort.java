@@ -1,47 +1,46 @@
 package algorithms.sequential;
 
 public class BitonicSort {
-    public static void sort(int[] array) {
-        int n = array.length;
-        // Asegurar que n es potencia de 2
-        int size = 1;
-        while (size < n) size *= 2;
+    public static void sort(int[] arr) {
+        int n = arr.length;
+        int tam = 1;
+        while (tam < n) tam *= 2;
 
-        int[] paddedArray = new int[size];
-        System.arraycopy(array, 0, paddedArray, 0, n);
-        for (int i = n; i < size; i++) {
-            paddedArray[i] = Integer.MAX_VALUE;
+        int[] arrRelleno = new int[tam];
+        System.arraycopy(arr, 0, arrRelleno, 0, n);
+        for (int i = n; i < tam; i++) {
+            arrRelleno[i] = Integer.MAX_VALUE;
         }
 
-        bitonicSort(paddedArray, 0, size, true);
-        System.arraycopy(paddedArray, 0, array, 0, n);
+        ordenarBitonic(arrRelleno, 0, tam, true);
+        System.arraycopy(arrRelleno, 0, arr, 0, n);
     }
 
-    private static void bitonicSort(int[] array, int low, int cnt, boolean dir) {
+    private static void ordenarBitonic(int[] arr, int inicio, int cnt, boolean dir) {
         if (cnt > 1) {
             int k = cnt / 2;
-            bitonicSort(array, low, k, true);
-            bitonicSort(array, low + k, k, false);
-            bitonicMerge(array, low, cnt, dir);
+            ordenarBitonic(arr, inicio, k, true);
+            ordenarBitonic(arr, inicio + k, k, false);
+            mezclarBitonic(arr, inicio, cnt, dir);
         }
     }
 
-    private static void bitonicMerge(int[] array, int low, int cnt, boolean dir) {
+    private static void mezclarBitonic(int[] arr, int inicio, int cnt, boolean dir) {
         if (cnt > 1) {
             int k = cnt / 2;
-            for (int i = low; i < low + k; i++) {
-                compareAndSwap(array, i, i + k, dir);
+            for (int i = inicio; i < inicio + k; i++) {
+                compararIntercambiar(arr, i, i + k, dir);
             }
-            bitonicMerge(array, low, k, dir);
-            bitonicMerge(array, low + k, k, dir);
+            mezclarBitonic(arr, inicio, k, dir);
+            mezclarBitonic(arr, inicio + k, k, dir);
         }
     }
 
-    private static void compareAndSwap(int[] array, int i, int j, boolean dir) {
-        if (dir == (array[i] > array[j])) {
-            int temp = array[i];
-            array[i] = array[j];
-            array[j] = temp;
+    private static void compararIntercambiar(int[] arr, int i, int j, boolean dir) {
+        if (dir == (arr[i] > arr[j])) {
+            int temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
         }
     }
 }

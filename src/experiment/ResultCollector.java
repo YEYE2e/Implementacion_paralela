@@ -8,136 +8,64 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ResultCollector {
-
-    private List<String[]> results;
-
-    private SystemInfo sysInfo;
-
-    
+    private List<String[]> resultados;
+    private SystemInfo info;
 
     public ResultCollector() {
-
-        this.results = new ArrayList<>();
-
-        this.sysInfo = new SystemInfo();
-
-        
-
-        // Header
-
-        results.add(new String[]{
-
+        this.resultados = new ArrayList<>();
+        this.info = new SystemInfo();
+        resultados.add(new String[]{
             "OS", "Processor", "RAM_MB", "Cores",
-
-            "Algorithm", "Implementation", "DataType", 
-
+            "Algorithm", "Implementation", "DataType",
             "Size", "Iteration", "TimeMillis", "TimeNanos"
-
         });
-
     }
 
-    
-
-    public void addResult(String algorithm, String implementation, 
-
-                         String dataType, int size, int iteration,
-
-                         long timeMillis, long timeNanos) {
-
-        results.add(new String[]{
-
-            sysInfo.getOs(),
-
-            sysInfo.getProcessor(),
-
-            String.valueOf(sysInfo.getRamMB()),
-
-            String.valueOf(sysInfo.getCores()),
-
-            algorithm,
-
-            implementation,
-
-            dataType,
-
-            String.valueOf(size),
-
-            String.valueOf(iteration),
-
-            String.valueOf(timeMillis),
-
-            String.valueOf(timeNanos)
-
+    public void addResult(String algoritmo, String implementacion,
+                         String tipoDato, int tamano, int iteracion,
+                         long tiempoMs, long tiempoNs) {
+        resultados.add(new String[]{
+            info.getOs(),
+            info.getProcessor(),
+            String.valueOf(info.getRamMB()),
+            String.valueOf(info.getCores()),
+            algoritmo,
+            implementacion,
+            tipoDato,
+            String.valueOf(tamano),
+            String.valueOf(iteracion),
+            String.valueOf(tiempoMs),
+            String.valueOf(tiempoNs)
         });
-
     }
 
-    
-
-    public void exportToCSV(String filename) throws IOException {
-
-        // Crear directorio si no existe
-
+    public void exportToCSV(String archivo) throws IOException {
         Files.createDirectories(Paths.get("results"));
-
+        FileWriter escritor = new FileWriter(archivo);
         
-
-        FileWriter writer = new FileWriter(filename);
-
-        
-
-        for (String[] row : results) {
-
-            // Escapar valores que contienen comas con comillas
-
-            StringBuilder csvRow = new StringBuilder();
-
-            for (int i = 0; i < row.length; i++) {
-
-                String value = row[i];
-
-                // Si el valor contiene coma, nueva línea o comilla, envolverlo en comillas
-
-                if (value.contains(",") || value.contains("\n") || value.contains("\"")) {
-
-                    value = "\"" + value.replace("\"", "\"\"") + "\"";
-
+        for (String[] fila : resultados) {
+            StringBuilder linea = new StringBuilder();
+            for (int i = 0; i < fila.length; i++) {
+                String valor = fila[i];
+                if (valor.contains(",") || valor.contains("\n") || valor.contains("\"")) {
+                    valor = "\"" + valor.replace("\"", "\"\"") + "\"";
                 }
-
-                csvRow.append(value);
-
-                if (i < row.length - 1) {
-
-                    csvRow.append(",");
-
+                linea.append(valor);
+                if (i < fila.length - 1) {
+                    linea.append(",");
                 }
-
             }
-
-            writer.append(csvRow.toString());
-
-            writer.append("\n");
-
+            escritor.append(linea.toString());
+            escritor.append("\n");
         }
-
         
-
-        writer.flush();
-
-        writer.close();
-
-        System.out.println("\n✓ Resultados exportados a: " + filename);
-
+        escritor.flush();
+        escritor.close();
+        System.out.println("\n✓ Resultados exportados a: " + archivo);
     }
-
-    
 
     public int getResultCount() {
-
-        return results.size() - 1; // Excluir header
-
+        return resultados.size() - 1;
     }
-
 }
 

@@ -3,70 +3,65 @@ package algorithms.sequential;
 import java.util.Stack;
 
 public class QuickSort {
-    public static void sort(int[] array) {
-        if (array.length < 2) return;
-        quickSort(array, 0, array.length - 1);
+    public static void sort(int[] arr) {
+        if (arr.length < 2) return;
+        ordenar(arr, 0, arr.length - 1);
     }
 
-    private static void quickSort(int[] array, int low, int high) {
-        // Usar stack en lugar de recursión para evitar StackOverflowError
-        Stack<int[]> stack = new Stack<>();
-        stack.push(new int[]{low, high});
+    private static void ordenar(int[] arr, int izq, int der) {
+        Stack<int[]> pila = new Stack<>();
+        pila.push(new int[]{izq, der});
 
-        while (!stack.isEmpty()) {
-            int[] bounds = stack.pop();
-            int l = bounds[0];
-            int h = bounds[1];
+        while (!pila.isEmpty()) {
+            int[] limites = pila.pop();
+            int i = limites[0];
+            int d = limites[1];
 
-            if (l < h) {
-                // Usar mediana de tres para elegir mejor pivote
-                int pi = partition(array, l, h);
+            if (i < d) {
+                int pivote = particionar(arr, i, d);
                 
-                // Optimización: procesar la parte más pequeña primero
-                if (pi - l < h - pi) {
-                    stack.push(new int[]{pi + 1, h});
-                    stack.push(new int[]{l, pi - 1});
+                if (pivote - i < d - pivote) {
+                    pila.push(new int[]{pivote + 1, d});
+                    pila.push(new int[]{i, pivote - 1});
                 } else {
-                    stack.push(new int[]{l, pi - 1});
-                    stack.push(new int[]{pi + 1, h});
+                    pila.push(new int[]{i, pivote - 1});
+                    pila.push(new int[]{pivote + 1, d});
                 }
             }
         }
     }
 
-    private static int partition(int[] array, int low, int high) {
-        // Mediana de tres para mejor pivote
-        int mid = low + (high - low) / 2;
-        if (array[mid] < array[low]) {
-            swap(array, low, mid);
+    private static int particionar(int[] arr, int izq, int der) {
+        int medio = izq + (der - izq) / 2;
+        if (arr[medio] < arr[izq]) {
+            intercambiar(arr, izq, medio);
         }
-        if (array[high] < array[low]) {
-            swap(array, low, high);
+        if (arr[der] < arr[izq]) {
+            intercambiar(arr, izq, der);
         }
-        if (array[high] < array[mid]) {
-            swap(array, mid, high);
+        if (arr[der] < arr[medio]) {
+            intercambiar(arr, medio, der);
         }
         
-        // Usar el medio como pivote
-        int pivot = array[mid];
-        swap(array, mid, high);
+        int pivote = arr[medio];
+        intercambiar(arr, medio, der);
         
-        int i = low - 1;
+        int i = izq - 1;
 
-        for (int j = low; j < high; j++) {
-            if (array[j] <= pivot) {
+        for (int j = izq; j < der; j++) {
+            if (arr[j] <= pivote) {
                 i++;
-                swap(array, i, j);
+                intercambiar(arr, i, j);
             }
         }
 
-        swap(array, i + 1, high);
+        intercambiar(arr, i + 1, der);
         return i + 1;
     }
 
-    private static void swap(int[] array, int i, int j) {
-        int temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
+    private static void intercambiar(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
     }
 }

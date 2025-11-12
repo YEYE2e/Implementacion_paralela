@@ -1,29 +1,24 @@
 public class Main {
-
     public static void main(String[] args) {
-        System.out.println("\n");
-        System.out.println("╔═══════════════════════════════════════════════════╗");
-        System.out.println("║                                                   ║");
-        System.out.println("║   EVALUACIÓN EMPÍRICA DE ALGORITMOS DE SORT       ║");
-        System.out.println("║   Implementaciones Secuenciales vs Paralelas      ║");
-        System.out.println("║                                                   ║");
-        System.out.println("╚═══════════════════════════════════════════════════╝");
+        System.out.println("\n═══════════════════════════════════════════════════");
+        System.out.println("   EVALUACIÓN EMPÍRICA DE ALGORITMOS DE SORT       ");
+        System.out.println("   Implementaciones Secuenciales vs Paralelas      ");
+        System.out.println("═══════════════════════════════════════════════════");
         
-        experiment.ExperimentRunner runner = new experiment.ExperimentRunner();
+        experiment.ExperimentRunner ejecutor = new experiment.ExperimentRunner();
         
-        long startTime = System.currentTimeMillis();
-        runner.runExperiments();
-        long endTime = System.currentTimeMillis();
+        long inicio = System.currentTimeMillis();
+        ejecutor.runExperiments();
+        long fin = System.currentTimeMillis();
         
-        long totalSeconds = (endTime - startTime) / 1000;
-        long minutes = totalSeconds / 60;
-        long seconds = totalSeconds % 60;
+        long segundos = (fin - inicio) / 1000;
+        long minutos = segundos / 60;
+        long seg = segundos % 60;
         
-        System.out.println("\n╔═══════════════════════════════════════════════════╗");
-        System.out.println("║            EXPERIMENTOS COMPLETADOS               ║");
-        System.out.println("╚═══════════════════════════════════════════════════╝");
-        System.out.printf("\n⏱ Tiempo total de ejecución: %d min %d seg\n", minutes, seconds);
-        System.out.println("\n¡Revisa el archivo results/experiment_results.csv!\n");
+        System.out.println("\n═══════════════════════════════════════════════════");
+        System.out.println("            EXPERIMENTOS COMPLETADOS                ");
+        System.out.println("═══════════════════════════════════════════════════");
+        System.out.printf("\n Tiempo total: %d min %d seg\n", minutos, seg);
+        System.out.println("\nResultados en: results/experiment_results.csv\n");
     }
-
 }
