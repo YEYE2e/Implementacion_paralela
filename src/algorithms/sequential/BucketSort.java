@@ -11,6 +11,8 @@ public class BucketSort {
         int max = Arrays.stream(arr).max().orElse(0);
         int min = Arrays.stream(arr).min().orElse(0);
         int rango = max - min + 1;
+        if (rango == 1) return;
+        
         int numCubetas = (int) Math.sqrt(arr.length);
 
         @SuppressWarnings("unchecked")

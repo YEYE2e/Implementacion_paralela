@@ -8,10 +8,22 @@ public class ParallelRadixSort {
     public static void sort(int[] arr) {
         if (arr.length < 2) return;
         
+        int min = Arrays.stream(arr).parallel().min().orElse(0);
         int max = Arrays.stream(arr).parallel().max().orElse(0);
+        
+        final int offset = (min < 0) ? -min : 0;
+        if (offset > 0) {
+            final int finalMax = max + offset;
+            IntStream.range(0, arr.length).parallel().forEach(i -> arr[i] += offset);
+            max = finalMax;
+        }
         
         for (int exp = 1; max / exp > 0; exp *= 10) {
             contarParalelo(arr, exp);
+        }
+        
+        if (offset > 0) {
+            IntStream.range(0, arr.length).parallel().forEach(i -> arr[i] -= offset);
         }
     }
     

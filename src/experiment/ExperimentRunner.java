@@ -27,6 +27,10 @@ public class ExperimentRunner {
         System.out.println(info + "\n");
         System.out.println("─".repeat(50));
         
+        System.out.println("\n⏱ Calentando JVM...");
+        warmUp();
+        System.out.println("✓ Warm-up completado\n");
+        
         int totalPruebas = generadores.length * TAMANOS.length * ITERACIONES * 12;
         int pruebaActual = 0;
         
@@ -91,7 +95,9 @@ public class ExperimentRunner {
     private int probarAlgoritmo(String algoritmo, String implementacion,
                                 String tipoDato, int tamano, int iteracion,
                                 int[] datos, AlgoritmoSort funcion) {
-        System.gc();
+        if (iteracion == 0) {
+            System.gc();
+        }
         
         try {
             long inicioMs = System.currentTimeMillis();
@@ -101,6 +107,11 @@ public class ExperimentRunner {
             
             long finNs = System.nanoTime();
             long finMs = System.currentTimeMillis();
+            
+            if (!estaOrdenado(datos)) {
+                System.err.println("\n      ✗ ERROR: " + algoritmo + " (" + implementacion + 
+                    ") NO ordenó correctamente el arreglo de " + tamano + " elementos - " + tipoDato);
+            }
             
             recolector.addResult(algoritmo, implementacion, tipoDato,
                 tamano, iteracion,
@@ -131,5 +142,27 @@ public class ExperimentRunner {
     @FunctionalInterface
     interface AlgoritmoSort {
         void sort(int[] array);
+    }
+    
+    private void warmUp() {
+        for (int i = 0; i < 3; i++) {
+            int[] datos = new RandomGenerator().generate(10000);
+            algorithms.sequential.QuickSort.sort(datos.clone());
+            algorithms.parallel.ParallelQuickSort.sort(datos.clone());
+            algorithms.sequential.MergeSort.sort(datos.clone());
+            algorithms.parallel.ParallelMergeSort.sort(datos.clone());
+            algorithms.sequential.RadixSort.sort(datos.clone());
+            algorithms.parallel.ParallelRadixSort.sort(datos.clone());
+        }
+        System.gc();
+    }
+    
+    private boolean estaOrdenado(int[] arr) {
+        for (int i = 0; i < arr.length - 1; i++) {
+            if (arr[i] > arr[i + 1]) {
+                return false;
+            }
+        }
+        return true;
     }
 }

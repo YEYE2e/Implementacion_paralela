@@ -18,20 +18,30 @@ public class QuickSort {
             int d = limites[1];
 
             if (i < d) {
-                int pivote = particionar(arr, i, d);
+                int[] limitesPart = particionar3Vias(arr, i, d);
+                int lt = limitesPart[0];
+                int gt = limitesPart[1];
                 
-                if (pivote - i < d - pivote) {
-                    pila.push(new int[]{pivote + 1, d});
-                    pila.push(new int[]{i, pivote - 1});
+                if (lt - i < d - gt) {
+                    if (i < lt - 1) {
+                        pila.push(new int[]{gt + 1, d});
+                        pila.push(new int[]{i, lt - 1});
+                    } else if (gt + 1 < d) {
+                        pila.push(new int[]{gt + 1, d});
+                    }
                 } else {
-                    pila.push(new int[]{i, pivote - 1});
-                    pila.push(new int[]{pivote + 1, d});
+                    if (gt + 1 < d) {
+                        pila.push(new int[]{i, lt - 1});
+                        pila.push(new int[]{gt + 1, d});
+                    } else if (i < lt - 1) {
+                        pila.push(new int[]{i, lt - 1});
+                    }
                 }
             }
         }
     }
 
-    private static int particionar(int[] arr, int izq, int der) {
+    private static int[] particionar3Vias(int[] arr, int izq, int der) {
         int medio = izq + (der - izq) / 2;
         if (arr[medio] < arr[izq]) {
             intercambiar(arr, izq, medio);
@@ -44,19 +54,26 @@ public class QuickSort {
         }
         
         int pivote = arr[medio];
-        intercambiar(arr, medio, der);
+        intercambiar(arr, medio, izq);
         
-        int i = izq - 1;
-
-        for (int j = izq; j < der; j++) {
-            if (arr[j] <= pivote) {
-                i++;
+        int i = izq;
+        int j = izq + 1;
+        int k = der + 1;
+        
+        while (j < k) {
+            if (arr[j] < pivote) {
                 intercambiar(arr, i, j);
+                i++;
+                j++;
+            } else if (arr[j] > pivote) {
+                k--;
+                intercambiar(arr, j, k);
+            } else {
+                j++;
             }
         }
-
-        intercambiar(arr, i + 1, der);
-        return i + 1;
+        
+        return new int[]{i, k - 1};
     }
 
     private static void intercambiar(int[] arr, int i, int j) {

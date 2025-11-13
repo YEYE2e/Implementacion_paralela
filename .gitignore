@@ -39,3 +39,11 @@ execution_log*.txt
 
 ### OS ###
 Thumbs.db
+
+### Project specific ###
+*.md
+*.pdf
+*.zip
+src.zip
+ANALISIS_CUMPLIMIENTO.md
+Sorting-Algorithms-and-Their-Execution-Times-an-Empirical-Evaluation.pdf

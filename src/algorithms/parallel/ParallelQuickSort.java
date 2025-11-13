@@ -1,8 +1,8 @@
 package algorithms.parallel;
 
-import java.util.concurrent.RecursiveAction;
-import java.util.concurrent.ForkJoinPool;
 import java.util.Stack;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RecursiveAction;
 
 public class ParallelQuickSort {
     private static final int UMBRAL = 10000;
@@ -13,8 +13,9 @@ public class ParallelQuickSort {
     }
 
     private static class TareaQuickSort extends RecursiveAction {
-        private int[] arr;
-        private int izq, der;
+        private final int[] arr;
+        private final int izq;
+        private final int der;
 
         TareaQuickSort(int[] arr, int izq, int der) {
             this.arr = arr;
@@ -30,10 +31,22 @@ public class ParallelQuickSort {
             }
 
             if (izq < der) {
-                int pivote = particionar(arr, izq, der);
-                TareaQuickSort tareaIzq = new TareaQuickSort(arr, izq, pivote - 1);
-                TareaQuickSort tareaDer = new TareaQuickSort(arr, pivote + 1, der);
-                invokeAll(tareaIzq, tareaDer);
+                int[] limitesPart = particionar3Vias(arr, izq, der);
+                int lt = limitesPart[0];
+                int gt = limitesPart[1];
+                
+                if (izq < lt - 1) {
+                    TareaQuickSort tareaIzq = new TareaQuickSort(arr, izq, lt - 1);
+                    if (gt + 1 < der) {
+                        TareaQuickSort tareaDer = new TareaQuickSort(arr, gt + 1, der);
+                        invokeAll(tareaIzq, tareaDer);
+                    } else {
+                        tareaIzq.invoke();
+                    }
+                } else if (gt + 1 < der) {
+                    TareaQuickSort tareaDer = new TareaQuickSort(arr, gt + 1, der);
+                    tareaDer.invoke();
+                }
             }
         }
 
@@ -47,20 +60,30 @@ public class ParallelQuickSort {
                 int d = limites[1];
 
                 if (i < d) {
-                    int pivote = particionar(arr, i, d);
-
-                    if (pivote - i < d - pivote) {
-                        pila.push(new int[]{pivote + 1, d});
-                        pila.push(new int[]{i, pivote - 1});
+                    int[] limitesPart = particionar3Vias(arr, i, d);
+                    int lt = limitesPart[0];
+                    int gt = limitesPart[1];
+                    
+                    if (lt - i < d - gt) {
+                        if (i < lt - 1) {
+                            pila.push(new int[]{gt + 1, d});
+                            pila.push(new int[]{i, lt - 1});
+                        } else if (gt + 1 < d) {
+                            pila.push(new int[]{gt + 1, d});
+                        }
                     } else {
-                        pila.push(new int[]{i, pivote - 1});
-                        pila.push(new int[]{pivote + 1, d});
+                        if (gt + 1 < d) {
+                            pila.push(new int[]{i, lt - 1});
+                            pila.push(new int[]{gt + 1, d});
+                        } else if (i < lt - 1) {
+                            pila.push(new int[]{i, lt - 1});
+                        }
                     }
                 }
             }
         }
 
-        private int particionar(int[] arr, int izq, int der) {
+        private int[] particionar3Vias(int[] arr, int izq, int der) {
             int medio = izq + (der - izq) / 2;
             if (arr[medio] < arr[izq]) {
                 intercambiar(arr, izq, medio);
@@ -71,21 +94,28 @@ public class ParallelQuickSort {
             if (arr[der] < arr[medio]) {
                 intercambiar(arr, medio, der);
             }
-
+            
             int pivote = arr[medio];
-            intercambiar(arr, medio, der);
-
-            int i = izq - 1;
-
-            for (int j = izq; j < der; j++) {
-                if (arr[j] <= pivote) {
-                    i++;
+            intercambiar(arr, medio, izq);
+            
+            int i = izq;
+            int j = izq + 1;
+            int k = der + 1;
+            
+            while (j < k) {
+                if (arr[j] < pivote) {
                     intercambiar(arr, i, j);
+                    i++;
+                    j++;
+                } else if (arr[j] > pivote) {
+                    k--;
+                    intercambiar(arr, j, k);
+                } else {
+                    j++;
                 }
             }
-
-            intercambiar(arr, i + 1, der);
-            return i + 1;
+            
+            return new int[]{i, k - 1};
         }
 
         private void intercambiar(int[] arr, int i, int j) {

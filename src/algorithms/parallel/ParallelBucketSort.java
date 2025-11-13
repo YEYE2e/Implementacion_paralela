@@ -12,6 +12,8 @@ public class ParallelBucketSort {
         int max = Arrays.stream(arr).parallel().max().orElse(0);
         int min = Arrays.stream(arr).parallel().min().orElse(0);
         int rango = max - min + 1;
+        if (rango == 1) return;
+        
         int numCubetas = (int) Math.sqrt(arr.length);
         
         @SuppressWarnings("unchecked")

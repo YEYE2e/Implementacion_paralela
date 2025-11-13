@@ -6,10 +6,26 @@ public class RadixSort {
     public static void sort(int[] arr) {
         if (arr.length < 2) return;
 
+        int min = Arrays.stream(arr).min().orElse(0);
         int max = Arrays.stream(arr).max().orElse(0);
+        
+        int offset = 0;
+        if (min < 0) {
+            offset = -min;
+            for (int i = 0; i < arr.length; i++) {
+                arr[i] += offset;
+            }
+            max += offset;
+        }
 
         for (int exp = 1; max / exp > 0; exp *= 10) {
             contar(arr, exp);
+        }
+        
+        if (offset > 0) {
+            for (int i = 0; i < arr.length; i++) {
+                arr[i] -= offset;
+            }
         }
     }
 
